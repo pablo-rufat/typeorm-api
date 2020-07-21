@@ -1,5 +1,6 @@
-import {Entity, PrimaryGeneratedColumn, Column, Unique, BeforeInsert} from "typeorm";
+import {Entity, PrimaryGeneratedColumn, Column, Unique, OneToOne} from "typeorm";
 import * as bcrypt from "bcrypt";
+import { Resume } from "../Resume/resume.entity";
 
 @Entity()
 @Unique(["email"])
@@ -19,6 +20,9 @@ export class User {
 
     @Column()
     password: string;
+
+    @OneToOne(type => Resume, resume => resume.user, { onDelete: 'CASCADE' },)
+    resume: Resume;
 
     async validatePassword(password: string): Promise<boolean> {
         return await bcrypt.compare(password, this.password);

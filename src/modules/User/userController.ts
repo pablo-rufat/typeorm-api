@@ -9,11 +9,11 @@ export class UserController {
     private userRepository = getRepository(User);
 
     async all(request: Request, response: Response, next: NextFunction) {
-        return this.userRepository.find();
+        return this.userRepository.find({ relations: ["resume"] });
     }
 
     async one(request: Request, response: Response, next: NextFunction) {
-        return this.userRepository.findOne(request.params.id);
+        return this.userRepository.findOne(request.params.id, { relations: ["resume"] });
     }
 
     async registerUser(request: Request, response: Response, next: NextFunction) {
@@ -33,15 +33,26 @@ export class UserController {
     async remove(request: Request, response: Response, next: NextFunction) {
         let userToRemove = await this.userRepository.findOne(request.params.id);
         await this.userRepository.remove(userToRemove);
+        return {
+            message: "deleted"
+        };
     }
 
     async login(request: Request, response: Response) {
 
-        const user = await this.userRepository.findOne({ email: request.body.email });
-        const validation = await user.validatePassword(request.body.password);
+        const user = await this.userRepository.findOne({ email: request.body.email }, { relations: ["resume"] });
+        if (!user){
+            return {
+                message: "User not found."
+            };
+        }
 
-        if (!user) throw new Error("User not found.");
-        if (!validation) throw new Error("Invalid password.");
+        const validation = await user.validatePassword(request.body.password);
+        if (!validation){
+            return {
+                message: "Invalid Password."
+            }
+        }
 
         const token = jwt.sign({ id: user.id }, process.env.SECRET_API, {
             expiresIn: process.env.TOKEN_EXP_TIME,
@@ -49,6 +60,7 @@ export class UserController {
 
         return {
             accessToken: token,
+            user
         };
     }
 
