@@ -1,6 +1,6 @@
 import {getRepository} from "typeorm";
 import {NextFunction, Request, Response} from "express";
-import {User} from "./user.entity";
+import {User, UserType} from "./user.entity";
 import * as jwt from "jsonwebtoken";
 import * as bcrypt from "bcrypt";
 

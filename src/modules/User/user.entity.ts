@@ -3,6 +3,11 @@ import * as bcrypt from "bcrypt";
 import { Resume } from "../Resume/resume.entity";
 import { Offer } from "../Offer/offer.entity";
 
+export enum UserType {
+    company = "company",
+    worker = "worker"
+}
+
 @Entity()
 @Unique(["email"])
 export class User {
@@ -18,6 +23,9 @@ export class User {
 
     @Column()
     email: string;
+
+    @Column()
+    type: UserType;
 
     @Column()
     password: string;

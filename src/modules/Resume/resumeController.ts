@@ -4,6 +4,7 @@ import {Resume} from "./resume.entity";
 import * as jwt from "jsonwebtoken";
 import * as bcrypt from "bcrypt";
 import { User } from "../User";
+import { UserType } from "../User/user.entity";
 
 export class ResumeController {
 
@@ -25,7 +26,14 @@ export class ResumeController {
         try {
             const user = await this.userRepository.findOne({ id: request.body.decodedId });
             if (!user) {
-                throw new Error("user not found");
+                return {
+                    message: "user not found"
+                };
+            }
+            if (user.type === UserType.company) {
+                return {
+                    message: "Can't upload resume."
+                };
             }
 
             const resume = await this.resumeRepository.save({

@@ -4,6 +4,7 @@ import {Offer} from "./offer.entity";
 import * as jwt from "jsonwebtoken";
 import * as bcrypt from "bcrypt";
 import { User } from "../User";
+import { UserType } from "../User/user.entity";
 
 export class OfferController {
 
@@ -23,7 +24,14 @@ export class OfferController {
         try {
             const user = await this.userRepository.findOne({ id: request.body.decodedId });
             if (!user) {
-                throw new Error("user not found");
+                return {
+                    message: "User not found."
+                };
+            }
+            if (user.type === UserType.worker) {
+                return {
+                    message: "Can't upload job offer."
+                };
             }
 
             const offer = await this.offerRepository.save({
@@ -52,8 +60,6 @@ export class OfferController {
     async update(request: Request, response: Response, next: NextFunction) {
         try {
 
-            // comprovação token
-
             const offer = await this.offerRepository.findOne(request.params.id);
             offer.description = request.body.offer.description;
             await this.offerRepository.save(offer);
@@ -73,6 +79,11 @@ export class OfferController {
             if(!user) {
                 return {
                     message: "User not found."
+                };
+            }
+            if(user.type === UserType.company) {
+                return {
+                    message: "Can't candidate to job offers."
                 };
             }
 
