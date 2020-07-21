@@ -18,7 +18,7 @@ export class ResumeController {
 
     async one(request: Request, response: Response, next: NextFunction) {
         // retornar só as infos com visible === true
-        return this.userRepository.findOne(request.params.id);
+        return this.resumeRepository.findOne(request.params.id);
     }
 
     async add(request: Request, response: Response, next: NextFunction) {
