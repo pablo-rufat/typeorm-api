@@ -4,25 +4,30 @@ export const ResumeRoutes = [{
     method: "get",
     route: "/resumes/:id",
     controller: ResumeController,
-    action: "one"
+    action: "one",
+    verifyToken: false,
 }, {
     method: "get",
     route: "/resumes",
     controller: ResumeController,
-    action: "all"
+    action: "all",
+    verifyToken: false,
 }, {
     method: "post",
     route: "/resumes",
     controller: ResumeController,
-    action: "add"
+    action: "add",
+    verifyToken: true,
 }, {
     method: "delete",
     route: "/resumes/:id",
     controller: ResumeController,
-    action: "remove"
+    action: "remove",
+    verifyToken: true,
 }, {
     method: "put",
     route: "/resumes/:id",
     controller: ResumeController,
-    action: "update"
+    action: "update",
+    verifyToken: true,
 }];

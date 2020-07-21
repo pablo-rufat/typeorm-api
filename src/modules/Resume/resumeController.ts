@@ -23,10 +23,7 @@ export class ResumeController {
 
     async add(request: Request, response: Response, next: NextFunction) {
         try {
-
-            // comprovação token
-
-            const user = await this.userRepository.findOne({ id: request.body.userId });
+            const user = await this.userRepository.findOne({ id: request.body.decodedId });
             if (!user) {
                 throw new Error("user not found");
             }

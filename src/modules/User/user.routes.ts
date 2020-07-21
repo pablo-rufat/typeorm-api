@@ -9,20 +9,30 @@ export const UserRoutes = [{
     method: "get",
     route: "/users/:id",
     controller: UserController,
-    action: "one"
+    action: "one",
+    verifyToken: false,
 }, {
     method: "post",
     route: "/users",
     controller: UserController,
-    action: "registerUser"
+    action: "registerUser",
+    verifyToken: false,
 }, {
     method: "delete",
     route: "/users/:id",
     controller: UserController,
-    action: "remove"
+    action: "remove",
+    verifyToken: false,
 }, {
     method: "post",
     route: "/login",
     controller: UserController,
-    action: "login"
+    action: "login",
+    verifyToken: false,
+}, {
+    method: "post",
+    route: "/logout",
+    controller: UserController,
+    action: "logout",
+    verifyToken: true,
 }];

@@ -38,6 +38,12 @@ export class UserController {
         };
     }
 
+    async logout(request: Request, response: Response) {
+        return {
+            accessToken: null
+        };
+    }
+
     async login(request: Request, response: Response) {
 
         const user = await this.userRepository.findOne({ email: request.body.email }, { relations: ["resume"] });
