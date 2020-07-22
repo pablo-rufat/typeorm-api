@@ -4,7 +4,8 @@ export const UserRoutes = [{
     method: "get",
     route: "/users",
     controller: UserController,
-    action: "all"
+    action: "all",
+    verifyToken: false,
 }, {
     method: "get",
     route: "/users/:id",
@@ -22,7 +23,7 @@ export const UserRoutes = [{
     route: "/users/:id",
     controller: UserController,
     action: "remove",
-    verifyToken: false,
+    verifyToken: true,
 }, {
     method: "post",
     route: "/login",

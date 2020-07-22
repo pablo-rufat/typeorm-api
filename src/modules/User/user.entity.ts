@@ -13,22 +13,22 @@ export enum UserType {
 export class User {
 
     @PrimaryGeneratedColumn("uuid")
-    id: string;
+    id!: string;
 
     @Column()
-    firstName: string;
+    firstName!: string;
 
     @Column()
-    lastName: string;
+    lastName!: string;
 
     @Column()
-    email: string;
+    email!: string;
 
     @Column()
-    type: UserType;
+    type!: UserType;
 
     @Column()
-    password: string;
+    password!: string;
 
     @OneToOne(type => Resume, resume => resume.user, { onDelete: 'CASCADE' },)
     resume: Resume;

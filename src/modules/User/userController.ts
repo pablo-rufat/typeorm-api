@@ -3,60 +3,120 @@ import {NextFunction, Request, Response} from "express";
 import {User, UserType} from "./user.entity";
 import * as jwt from "jsonwebtoken";
 import * as bcrypt from "bcrypt";
+import { RESTResult } from "../interfaces";
 
 export class UserController {
 
     private userRepository = getRepository(User);
 
-    async all(request: Request, response: Response, next: NextFunction) {
-        return this.userRepository.find({ relations: ["resume"] });
+    async all(request: Request, response: Response, next: NextFunction): Promise<RESTResult> {
+        const users = await this.userRepository.find({ relations: ["resume"] });
+        return {
+            status: 200,
+            content: users
+        };
     }
 
-    async one(request: Request, response: Response, next: NextFunction) {
-        return this.userRepository.findOne(request.params.id, { relations: ["resume"] });
+    async one(request: Request, response: Response, next: NextFunction): Promise<RESTResult> {
+        const user = await this.userRepository.findOne(request.params.id, { relations: ["resume"] });
+        if (!user) {
+            return {
+                status: 404,
+                content: {
+                    message: "User not found."
+                }
+            };
+        }
+        return {
+            status: 200,
+            content: user
+        };
     }
 
-    async registerUser(request: Request, response: Response, next: NextFunction) {
+    async registerUser(request: Request, response: Response, next: NextFunction): Promise<RESTResult> {
         try {
+            const exists = await this.userRepository.findOne({ email: request.body.email });
+            if (exists) {
+                return {
+                    status: 400,
+                    content: {
+                        message: "User already registered."
+                    }
+                };
+            }
+
             const user = await this.userRepository.save({
                 ...request.body,
                 password: await this.hashPassword(request.body.password)
             });
-            return user;
+            return {
+                status: 201,
+                content: {
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    email: user.email,
+                    type: user.type
+                }
+            };
         } catch(e) {
             return {
-                message: e
+                status: 500,
+                content: {
+                    message: e
+                }
             }
         }
     }
 
-    async remove(request: Request, response: Response, next: NextFunction) {
+    async remove(request: Request, response: Response, next: NextFunction): Promise<RESTResult> {
         let userToRemove = await this.userRepository.findOne(request.params.id);
+
+        if (!userToRemove){
+            return {
+                status: 404,
+                content: {
+                    message: "User not found."
+                }
+            };
+        }
+
         await this.userRepository.remove(userToRemove);
         return {
-            message: "deleted"
+            status: 200,
+            content: {
+                message: "deleted"
+            }
         };
     }
 
-    async logout(request: Request, response: Response) {
+    async logout(request: Request, response: Response): Promise<RESTResult> {
         return {
-            accessToken: null
+            status: 200,
+            content: {
+                accessToken: null
+            }
         };
     }
 
-    async login(request: Request, response: Response) {
+    async login(request: Request, response: Response): Promise<RESTResult> {
 
         const user = await this.userRepository.findOne({ email: request.body.email }, { relations: ["resume"] });
         if (!user){
             return {
-                message: "User not found."
+                status: 404,
+                content: {
+                    message: "User not found."
+                }
             };
         }
 
         const validation = await user.validatePassword(request.body.password);
         if (!validation){
             return {
-                message: "Invalid Password."
+                status: 400,
+                content: {
+                    message: "Invalid Password."
+                }
             }
         }
 
@@ -65,8 +125,16 @@ export class UserController {
         });
 
         return {
-            accessToken: token,
-            user
+            status: 200,
+            content: {
+                accessToken: token,
+                user: {
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    email: user.email,
+                    type: user.type
+                }
+            }
         };
     }
 

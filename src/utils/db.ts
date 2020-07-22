@@ -6,7 +6,7 @@ export const clearDB = async () => {
     const resumeRepository = getRepository(Resume);
     const offerRepository = getRepository(Offer);
 
-    userRepository.delete({});
-    resumeRepository.delete({});
-    offerRepository.delete({});
+    await userRepository.delete({});
+    await resumeRepository.delete({});
+    await offerRepository.delete({});
 };

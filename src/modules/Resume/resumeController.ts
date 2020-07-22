@@ -1,38 +1,51 @@
 import {getRepository} from "typeorm";
 import {NextFunction, Request, Response} from "express";
 import {Resume} from "./resume.entity";
-import * as jwt from "jsonwebtoken";
-import * as bcrypt from "bcrypt";
 import { User } from "../User";
 import { UserType } from "../User/user.entity";
+import { RESTResult } from "../interfaces";
 
 export class ResumeController {
 
     private resumeRepository = getRepository(Resume);
     private userRepository = getRepository(User);
 
-    async all(request: Request, response: Response, next: NextFunction) {
+    async all(request: Request, response: Response, next: NextFunction): Promise<RESTResult> {
         // add filter and pagination
         // retornar só as infos com visible === true
-        return this.resumeRepository.find();
+        const resumes = await this.resumeRepository.find();
+        return {
+            status: 200,
+            content: resumes
+        };
     }
 
-    async one(request: Request, response: Response, next: NextFunction) {
+    async one(request: Request, response: Response, next: NextFunction): Promise<RESTResult> {
         // retornar só as infos com visible === true
-        return this.resumeRepository.findOne(request.params.id);
+        const resume = await this.resumeRepository.findOne(request.params.id);
+        return {
+            status: 200,
+            content: resume
+        };
     }
 
-    async add(request: Request, response: Response, next: NextFunction) {
+    async add(request: Request, response: Response, next: NextFunction): Promise<RESTResult> {
         try {
             const user = await this.userRepository.findOne({ id: request.body.decodedId });
             if (!user) {
                 return {
-                    message: "user not found"
+                    status: 404,
+                    content: {
+                        message: "user not found"
+                    }
                 };
             }
             if (user.type === UserType.company) {
                 return {
-                    message: "Can't upload resume."
+                    status: 400,
+                    content: {
+                        message: "Can't upload resume."
+                    }
                 };
             }
 
@@ -44,26 +57,33 @@ export class ResumeController {
             await this.userRepository.save(user);
 
         // retornar só as infos com visible === true
-            return resume;
+            return {
+                status: 201,
+                content: resume
+            };
         } catch(e) {
             return {
-                message: e
+                status: 500,
+                content: {
+                    message: e
+                }
             }
         }
     }
 
-    async remove(request: Request, response: Response, next: NextFunction) {
+    async remove(request: Request, response: Response, next: NextFunction): Promise<RESTResult> {
         // comprovação token
         await this.resumeRepository.delete({ id: request.params.id });
         return{
-            message: "deleted"
+            status: 200,
+            content: {
+                message: "deleted"
+            }
         };
     }
 
-    async update(request: Request, response: Response, next: NextFunction) {
+    async update(request: Request, response: Response, next: NextFunction): Promise<RESTResult> {
         try {
-
-            // comprovação token
 
             const resume = await this.resumeRepository.findOne(request.params.id);
 
@@ -74,10 +94,18 @@ export class ResumeController {
             await this.resumeRepository.save(resume);
 
         // retornar só as infos com visible === true
-            return resume;
+            return {
+                status: 200,
+                content: {
+                    resume
+                }
+            };
         } catch(e) {
             return {
-                message: e
+                status: 500,
+                content: {
+                    message: e
+                }
             }
         }
     }
